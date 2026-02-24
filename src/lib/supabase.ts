@@ -44,8 +44,16 @@ export async function insertNewsBatch(items: DbNewsItem[]) {
 
 export async function fetchAllNewsFromDB(): Promise<DbNewsItem[]> {
     if (!supabaseUrl || !supabaseKey) {
-        console.warn('Supabase URL or Key is missing. Returning empty history.');
-        return [];
+        return [{
+            id: 'err-env',
+            title: `[DEBUG] Missing Env Variables on Vercel`,
+            summary: `URL is ${supabaseUrl ? 'Set' : 'Missing'}, Key is ${supabaseKey ? 'Set' : 'Missing'}`,
+            sentiment: 'Neutral',
+            commodity: 'None',
+            source: 'System Error',
+            link: '#',
+            published_at: new Date().toISOString()
+        }];
     }
 
     try {
@@ -62,13 +70,30 @@ export async function fetchAllNewsFromDB(): Promise<DbNewsItem[]> {
         });
 
         if (!res.ok) {
-            console.error('Failed to fetch from Supabase:', await res.text());
-            return [];
+            const errText = await res.text();
+            return [{
+                id: 'err-fetch',
+                title: `[DEBUG] Supabase Fetch Error: ${res.status} ${res.statusText}`,
+                summary: `Details: ${errText.substring(0, 200)} | Key starts with: ${supabaseKey.substring(0, 15)}...`,
+                sentiment: 'Bearish',
+                commodity: 'None',
+                source: 'System Error',
+                link: '#',
+                published_at: new Date().toISOString()
+            }];
         }
 
         return await res.json();
-    } catch (e) {
-        console.error('Network error during Supabase fetch:', e);
-        return [];
+    } catch (e: any) {
+        return [{
+            id: 'err-net',
+            title: `[DEBUG] Network Exception during Fetch`,
+            summary: `Error: ${e.message}`,
+            sentiment: 'Bearish',
+            commodity: 'None',
+            source: 'System Error',
+            link: '#',
+            published_at: new Date().toISOString()
+        }];
     }
 }

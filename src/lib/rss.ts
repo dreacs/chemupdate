@@ -37,7 +37,7 @@ function parseRSSItems(xmlData: string, source: string): NewsItem[] {
 
   if (itemMatches) {
     for (const itemXml of itemMatches) {
-      if (items.length >= 3) break; // Take only the latest 3 per source
+      if (items.length >= 10) break; // Take only the latest 10 per source
 
       const title = extractTag(itemXml, 'title');
       if (!title) continue;
