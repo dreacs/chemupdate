@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 type Sentiment = 'Bullish' | 'Bearish' | 'Neutral';
 
@@ -17,6 +17,12 @@ export interface NewsItem {
 
 export default function DashboardClient({ initialNews, brentPrice }: { initialNews: NewsItem[], brentPrice?: number | null }) {
     const [filter, setFilter] = useState<string>('All');
+    const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+
+    // Set initial refresh time on client load
+    useEffect(() => {
+        setLastRefreshed(new Date());
+    }, []);
 
     // Strict sorting (descending) and standardize Crude Oil -> Brent Oil
     const sortedNews = useMemo(() => {
@@ -71,8 +77,25 @@ export default function DashboardClient({ initialNews, brentPrice }: { initialNe
             <div className="max-w-5xl mx-auto">
                 <header className="mb-10 border-b border-slate-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
-                        <h1 className="text-4xl font-bold text-white tracking-tight">ChemSignal</h1>
-                        <p className="text-slate-400 mt-2 text-lg">Real-time Energy & Chemical Market Sentiment</p>
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-4xl font-bold text-white tracking-tight">ChemSignal</h1>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 mt-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md text-xs font-medium border border-slate-700 hover:border-slate-600 transition-colors shadow-sm"
+                                title="Force refresh data and analyze new articles"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                Refresh
+                            </button>
+                        </div>
+                        <div className="flex flex-col gap-1 mt-2">
+                            <p className="text-slate-400 text-lg">Real-time Energy & Chemical Market Sentiment</p>
+                            {lastRefreshed && (
+                                <p className="text-xs text-slate-500 font-mono">
+                                    Last Check: {lastRefreshed.toLocaleString()}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     {brentPrice !== undefined && brentPrice !== null && (
                         <a href="https://www.investing.com/commodities/brent-oil" target="_blank" rel="noopener noreferrer" className="flex flex-col items-end bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg shadow-sm hover:border-slate-700 hover:bg-slate-800 transition-colors group cursor-pointer">
