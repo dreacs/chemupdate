@@ -90,6 +90,7 @@ export async function fetchNews(): Promise<NewsItem[]> {
       { name: 'C&EN', q: 'site:cen.acs.org chemical market OR industry' },
       { name: 'Offshore Engineer', q: 'site:oedigital.com energy projects' },
       // 2. Commodity Focused Queries (Advanced Boolean)
+      { name: 'Brent Oil', q: '"Brent crude" OR "Brent oil" AND (price OR market OR supply OR demand) -stock -promotion -analyst' },
       { name: 'Acetone/Phenol', q: '(acetone OR phenol) AND (price OR "supply chain" OR shortage OR inventory) -stock -promotion -analyst' },
       { name: 'Ammonia', q: '(ammonia) AND (market OR energy OR hydrogen) -stock -promotion' },
       { name: 'Methanol', q: 'methanol AND (market OR energy OR price) -stock -promotion' },
