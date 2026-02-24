@@ -4,6 +4,7 @@ import { insertNewsBatch, fetchAllNewsFromDB, DbNewsItem } from '@/lib/supabase'
 import DashboardClient from '@/components/DashboardClient';
 
 export const revalidate = 0; // Stateless, fetch on every request
+export const dynamic = 'force-dynamic'; // Prevent Vercel from statically caching this page during build
 
 export default async function Home() {
   // 1. Fetch fresh news from RSS
