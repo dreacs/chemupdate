@@ -141,13 +141,13 @@ export default function DashboardClient({ initialNews, brentPrice }: { initialNe
                                     <div key={index} className="flex-1 flex flex-col justify-end items-center h-full relative group">
                                         {/* Tooltip */}
                                         <div className="absolute -top-10 bg-slate-800 border border-slate-700 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap shadow-lg">
-                                            <span className="text-emerald-400 font-bold">{d.Bullish}</span> | <span className="text-slate-400 font-bold">{d.Neutral}</span> | <span className="text-rose-400 font-bold">{d.Bearish}</span>
+                                            <span className="text-rose-400 font-bold">{d.Bullish}</span> | <span className="text-slate-400 font-bold">{d.Neutral}</span> | <span className="text-emerald-400 font-bold">{d.Bearish}</span>
                                         </div>
 
                                         {/* Bars */}
-                                        <div className="w-full max-w-12 bg-rose-500/90 rounded-t-sm transition-all duration-500 ease-out" style={{ height: `${bearHeight}%` }}></div>
+                                        <div className="w-full max-w-12 bg-emerald-500/90 rounded-t-sm transition-all duration-500 ease-out" style={{ height: `${bearHeight}%` }}></div>
                                         <div className="w-full max-w-12 bg-slate-500/90 transition-all duration-500 ease-out" style={{ height: `${neutralHeight}%` }}></div>
-                                        <div className="w-full max-w-12 bg-emerald-500/90 transition-all duration-500 ease-out" style={{ height: `${bulHeight}%` }}></div>
+                                        <div className="w-full max-w-12 bg-rose-500/90 transition-all duration-500 ease-out" style={{ height: `${bulHeight}%` }}></div>
 
                                         {/* X-Axis Label */}
                                         <div className="absolute -bottom-6 text-xs text-slate-500 font-medium whitespace-nowrap mt-2">
@@ -159,9 +159,9 @@ export default function DashboardClient({ initialNews, brentPrice }: { initialNe
                         </div>
 
                         <div className="mt-8 flex gap-4 text-sm justify-center">
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Bullish</div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-full"></div> Bullish</div>
                             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-500 rounded-full"></div> Neutral</div>
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-full"></div> Bearish</div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Bearish</div>
                         </div>
                     </div>
                 )
@@ -219,8 +219,8 @@ export default function DashboardClient({ initialNews, brentPrice }: { initialNe
 
 function SentimentBadge({ sentiment }: { sentiment: 'Bullish' | 'Bearish' | 'Neutral' }) {
     const styles = {
-        Bullish: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        Bearish: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        Bullish: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        Bearish: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
         Neutral: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
     };
 
