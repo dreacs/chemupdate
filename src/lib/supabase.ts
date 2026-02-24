@@ -57,7 +57,11 @@ export async function fetchAllNewsFromDB(): Promise<DbNewsItem[]> {
     }
 
     try {
-        const res = await fetch(`${supabaseUrl}/rest/v1/news?select=*&order=published_at.desc.nullslast`, {
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        const isoDate = sixtyDaysAgo.toISOString();
+
+        const res = await fetch(`${supabaseUrl}/rest/v1/news?select=*&published_at=gte.${isoDate}&order=published_at.desc.nullslast`, {
             method: 'GET',
             headers: {
                 'apikey': supabaseKey,
