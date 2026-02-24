@@ -6,6 +6,20 @@ export interface NewsItem {
   source: string;
 }
 
+export async function fetchBrentCrudePrice(): Promise<number | null> {
+  try {
+    const res = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?interval=1d&range=1d', {
+      next: { revalidate: 300 } // Revalidate every 5 minutes
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.chart.result[0].meta.regularMarketPrice;
+  } catch (e) {
+    console.error('Failed to fetch crude price', e);
+    return null;
+  }
+}
+
 function extractTag(xml: string, tag: string): string {
   const match = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'));
   if (match && match[1]) {

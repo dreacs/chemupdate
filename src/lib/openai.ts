@@ -25,7 +25,7 @@ For EACH headline, analyze it and provide a JSON array of objects with exactly t
 For each headline, extract:
 1. "sentiment": strictly one of "Bullish", "Bearish", or "Neutral"
 2. "summary": A 1-sentence summary of the headline
-3. "commodity": The primary commodity mentioned (e.g., "Crude Oil", "Methanol", "Ethylene", "Natural Gas", "None")
+3. "commodity": The primary commodity mentioned (e.g., "Brent Oil", "Methanol", "Ethylene", "Natural Gas", "None")
 
 Output format must be a JSON object with a single key "results" containing the array of exactly ${headlines.length} objects.
 

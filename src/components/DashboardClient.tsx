@@ -15,19 +15,24 @@ export interface NewsItem {
     commodity: string;
 }
 
-export default function DashboardClient({ initialNews }: { initialNews: NewsItem[] }) {
+export default function DashboardClient({ initialNews, brentPrice }: { initialNews: NewsItem[], brentPrice?: number | null }) {
     const [filter, setFilter] = useState<string>('All');
 
-    // Strict sorting (descending)
+    // Strict sorting (descending) and standardize Crude Oil -> Brent Oil
     const sortedNews = useMemo(() => {
-        return [...initialNews].sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+        return [...initialNews].map(n => ({
+            ...n,
+            commodity: n.commodity === 'Crude Oil' || n.commodity === 'Crude Brent Oil' ? 'Brent Oil' : n.commodity
+        })).sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
     }, [initialNews]);
 
-    // Extract unique commodities
+    // Extract unique commodities, but ensure core ones always exist
     const commodities = useMemo(() => {
         const raw = sortedNews.map((n) => n.commodity).filter(c => c && c !== 'None' && c !== 'Unknown');
-        const unique = Array.from(new Set(raw));
-        return ['All', ...unique];
+        const unique = new Set(raw);
+        // Ensure our standard commodities are always present
+        ['Brent Oil', 'Acetone', 'Ammonia', 'Methanol', 'Natural Gas'].forEach(c => unique.add(c));
+        return ['All', ...Array.from(unique)];
     }, [sortedNews]);
 
     // Filtered news
@@ -38,7 +43,7 @@ export default function DashboardClient({ initialNews }: { initialNews: NewsItem
 
     // Process timeline data based on filtered items
     const timelineData = useMemo(() => {
-        const dateMap: Record<string, { Bullish: number; Bearish: number; dateString: string; rawDate: string }> = {};
+        const dateMap: Record<string, { Bullish: number; Bearish: number; Neutral: number; dateString: string; rawDate: string }> = {};
 
         filteredNews.forEach((n) => {
             const d = new Date(n.pubDate);
@@ -46,13 +51,15 @@ export default function DashboardClient({ initialNews }: { initialNews: NewsItem
             const shortDate = `${d.getDate()}.${monthNames[d.getMonth()]}`;
 
             if (!dateMap[shortDate]) {
-                dateMap[shortDate] = { Bullish: 0, Bearish: 0, dateString: shortDate, rawDate: n.pubDate };
+                dateMap[shortDate] = { Bullish: 0, Bearish: 0, Neutral: 0, dateString: shortDate, rawDate: n.pubDate };
             }
 
             if (n.sentiment === 'Bullish') {
                 dateMap[shortDate].Bullish += 1;
             } else if (n.sentiment === 'Bearish') {
                 dateMap[shortDate].Bearish += 1;
+            } else {
+                dateMap[shortDate].Neutral += 1;
             }
         });
 
@@ -67,6 +74,15 @@ export default function DashboardClient({ initialNews }: { initialNews: NewsItem
                         <h1 className="text-4xl font-bold text-white tracking-tight">ChemSignal</h1>
                         <p className="text-slate-400 mt-2 text-lg">Real-time Energy & Chemical Market Sentiment</p>
                     </div>
+                    {brentPrice !== undefined && brentPrice !== null && (
+                        <a href="https://www.investing.com/commodities/brent-oil" target="_blank" rel="noopener noreferrer" className="flex flex-col items-end bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg shadow-sm hover:border-slate-700 hover:bg-slate-800 transition-colors group cursor-pointer">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-400 transition-colors">Crude brent oil</span>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-2xl font-bold text-white">${brentPrice.toFixed(2)}</span>
+                                <span className="text-xs text-slate-400">/bbl</span>
+                            </div>
+                        </a>
+                    )}
                 </header>
 
                 {/* Filters */}
@@ -94,18 +110,20 @@ export default function DashboardClient({ initialNews }: { initialNews: NewsItem
                         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Sentiment Timeline (Bullish vs Bearish)</h2>
                         <div className="w-full h-64 relative flex items-end justify-between gap-2 border-l border-b border-slate-700 pb-6 pl-2">
                             {timelineData.map((d, index) => {
-                                const maxVal = Math.max(...timelineData.map(t => t.Bullish + t.Bearish), 1);
+                                const maxVal = Math.max(...timelineData.map(t => t.Bullish + t.Bearish + t.Neutral), 1);
                                 const bulHeight = (d.Bullish / maxVal) * 100;
                                 const bearHeight = (d.Bearish / maxVal) * 100;
+                                const neutralHeight = (d.Neutral / maxVal) * 100;
                                 return (
                                     <div key={index} className="flex-1 flex flex-col justify-end items-center h-full relative group">
                                         {/* Tooltip */}
                                         <div className="absolute -top-10 bg-slate-800 border border-slate-700 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap shadow-lg">
-                                            <span className="text-emerald-400 font-bold">{d.Bullish}</span> | <span className="text-rose-400 font-bold">{d.Bearish}</span>
+                                            <span className="text-emerald-400 font-bold">{d.Bullish}</span> | <span className="text-slate-400 font-bold">{d.Neutral}</span> | <span className="text-rose-400 font-bold">{d.Bearish}</span>
                                         </div>
 
                                         {/* Bars */}
                                         <div className="w-full max-w-12 bg-rose-500/90 rounded-t-sm transition-all duration-500 ease-out" style={{ height: `${bearHeight}%` }}></div>
+                                        <div className="w-full max-w-12 bg-slate-500/90 transition-all duration-500 ease-out" style={{ height: `${neutralHeight}%` }}></div>
                                         <div className="w-full max-w-12 bg-emerald-500/90 transition-all duration-500 ease-out" style={{ height: `${bulHeight}%` }}></div>
 
                                         {/* X-Axis Label */}
@@ -119,6 +137,7 @@ export default function DashboardClient({ initialNews }: { initialNews: NewsItem
 
                         <div className="mt-8 flex gap-4 text-sm justify-center">
                             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-full"></div> Bullish</div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-500 rounded-full"></div> Neutral</div>
                             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-full"></div> Bearish</div>
                         </div>
                     </div>
