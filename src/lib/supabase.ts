@@ -55,7 +55,9 @@ export async function fetchAllNewsFromDB(): Promise<DbNewsItem[]> {
                 'apikey': supabaseKey,
                 'Authorization': `Bearer ${supabaseKey}`,
                 'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
             },
+            cache: 'no-store', // Vercel Next.js exact override
             next: { revalidate: 0 } // Always fresh
         });
 

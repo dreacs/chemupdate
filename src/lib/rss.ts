@@ -9,7 +9,10 @@ export interface NewsItem {
 export async function fetchBrentCrudePrice(): Promise<number | null> {
   try {
     const res = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?interval=1d&range=1d', {
-      next: { revalidate: 300 } // Revalidate every 5 minutes
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -71,7 +74,10 @@ export async function fetchNews(): Promise<NewsItem[]> {
   try {
     const fetchWithTimeout = async (url: string) => {
       const response = await fetch(url, {
-        next: { revalidate: 3600 },
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        }
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.text();
