@@ -77,12 +77,23 @@ export async function fetchNews(): Promise<NewsItem[]> {
       return await response.text();
     };
 
-    const sources = [
-      { name: 'Google: Acetone', url: 'https://news.google.com/rss/search?q=acetone+market+price&hl=en-US&gl=US&ceid=US:en' },
-      { name: 'Google: Ammonia', url: 'https://news.google.com/rss/search?q=ammonia+market+price+energy&hl=en-US&gl=US&ceid=US:en' },
-      { name: 'Google: Methanol', url: 'https://news.google.com/rss/search?q=methanol+market+price&hl=en-US&gl=US&ceid=US:en' },
-      { name: 'Google: Natural Gas', url: 'https://news.google.com/rss/search?q=natural+gas+market+energy&hl=en-US&gl=US&ceid=US:en' }
+    const searchQueries = [
+      // 1. Target Specialized Sites
+      { name: 'IEA', q: 'site:iea.org energy policy OR outlook' },
+      { name: 'World Oil', q: 'site:worldoil.com upstream OR production' },
+      { name: 'C&EN', q: 'site:cen.acs.org chemical market OR industry' },
+      { name: 'Offshore Engineer', q: 'site:oedigital.com energy projects' },
+      // 2. Commodity Focused Queries (Advanced Boolean)
+      { name: 'Acetone/Phenol', q: '(acetone OR phenol) AND (price OR "supply chain" OR shortage OR inventory) -stock -promotion -analyst' },
+      { name: 'Ammonia', q: '(ammonia) AND (market OR energy OR hydrogen) -stock -promotion' },
+      { name: 'Methanol', q: 'methanol AND (market OR energy OR price) -stock -promotion' },
+      { name: 'Natural Gas', q: '(natural gas OR LNG) AND (price OR storage OR export) -stock' }
     ];
+
+    const sources = searchQueries.map(sq => ({
+      name: sq.name,
+      url: `https://news.google.com/rss/search?q=${encodeURIComponent(sq.q)}&hl=en-US&gl=US&ceid=US:en`
+    }));
 
     const results = await Promise.allSettled(sources.map(s => fetchWithTimeout(s.url)));
     let allItems: NewsItem[] = [];
